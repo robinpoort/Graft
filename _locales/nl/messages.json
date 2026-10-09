@@ -1,0 +1,245 @@
+{
+  "appName": {
+    "message": "Graft: lokale CSS en JS testen op een live site"
+  },
+  "appDesc": {
+    "message": "Vervang een stylesheet of script op een live site door een bestand op je eigen computer en zie elke opslag meteen terug. Zonder deploy ertussen."
+  },
+  "appShortName": {
+    "message": "Graft"
+  },
+  "uiRescan": {
+    "message": "Pagina opnieuw scannen"
+  },
+  "uiNoSite": {
+    "message": "Geen website"
+  },
+  "uiAccessPending": {
+    "message": "Wacht op toestemming"
+  },
+  "uiAccessHead": {
+    "message": "Eerst toestemming"
+  },
+  "uiAccessNote": {
+    "message": "Om een stylesheet of script te vervangen moet Graft op de pagina zijn voordat die begint te laden, bij elke herlaadbeurt. Dat mag van Chrome alleen met toestemming om de sites die je bezoekt te lezen en te wijzigen. Graft verandert niets aan een site tot je er een bestand voor kiest, en trek je de toestemming in via chrome://extensions, dan is alles weer zoals het was."
+  },
+  "uiAccessAllow": {
+    "message": "Toestaan"
+  },
+  "uiSheets": {
+    "message": "Stylesheets"
+  },
+  "uiScripts": {
+    "message": "Scripts"
+  },
+  "uiSummaryOne": {
+    "message": "1 stylesheet"
+  },
+  "uiSummaryMany": {
+    "message": "$P1$ stylesheets",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "uiSummaryScriptsOne": {
+    "message": "1 script"
+  },
+  "uiSummaryScriptsMany": {
+    "message": "$P1$ scripts",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "uiSummarySwapped": {
+    "message": "$P1$ vervangen",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "uiEmpty": {
+    "message": "Geen stylesheets of scripts op deze pagina. CSS die via @import binnenkomt of in een <style> staat, en een script dat in de pagina zelf staat, hebben geen eigen bestand om te vervangen."
+  },
+  "uiNotOnPage": {
+    "message": "niet op deze pagina"
+  },
+  "uiChoose": {
+    "message": "Kies een lokaal bestand…"
+  },
+  "uiChooseOther": {
+    "message": "Ander bestand…"
+  },
+  "uiRemove": {
+    "message": "Verwijderen"
+  },
+  "uiUseFile": {
+    "message": "Dit bestand gebruiken"
+  },
+  "uiAllowFile": {
+    "message": "Bestand toestaan"
+  },
+  "uiPickerType": {
+    "message": "Stylesheet"
+  },
+  "uiPickerTypeJs": {
+    "message": "JavaScript"
+  },
+  "uiDownload": {
+    "message": "$P1$ downloaden",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "uiDownloadTitle": {
+    "message": "Live bestand downloaden"
+  },
+  "uiStateLive": {
+    "message": "Live"
+  },
+  "uiStateOff": {
+    "message": "Uit"
+  },
+  "uiStateCopy": {
+    "message": "Kopie"
+  },
+  "uiStateMissing": {
+    "message": "Kwijt"
+  },
+  "uiStateNotSwapped": {
+    "message": "Niet vervangen"
+  },
+  "uiNoteLive": {
+    "message": "Volgt elke opslag. Laatst opgeslagen om $P1$.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "uiNoteLiveJs": {
+    "message": "Elke opslag herlaadt de pagina. Laatst opgeslagen om $P1$.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "uiNoteOff": {
+    "message": "De pagina toont het origineel."
+  },
+  "uiNoteOffJs": {
+    "message": "De pagina draait het origineel."
+  },
+  "uiNoteLate": {
+    "message": "Door een ander script toegevoegd terwijl de pagina al draaide, te laat om te vervangen. Het origineel draaide."
+  },
+  "uiNoteBlocked": {
+    "message": "De Content Security Policy van de site staat de vervanging niet toe, dus het origineel draaide."
+  },
+  "uiNoteCopy": {
+    "message": "Toont de kopie van $P1$.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "uiNotePrompt": {
+    "message": "Toont de kopie van $P1$. Chrome wil eerst opnieuw je akkoord voordat Graft het bestand mag volgen.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "uiNoteGone": {
+    "message": "Het bestand is weg. Toont de kopie van $P1$.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "uiNoteNoHandle": {
+    "message": "Toont de kopie van $P1$. Kies het bestand opnieuw om het te volgen.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "uiHint": {
+    "message": "Zolang dit paneel open is, verschijnt elke opslag van een gekozen bestand meteen op de pagina: een stylesheet ter plekke, een script met een herlaadbeurt. Sluit je het, dan houdt de pagina de laatste kopie, ook na herladen."
+  },
+  "uiStatusSwapped": {
+    "message": "$P1$ gebruikt nu $P2$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "uiStatusOriginal": {
+    "message": "$P1$ is terug naar het origineel",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "uiStatusRemoved": {
+    "message": "$P1$ wordt niet meer vervangen",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "uiStatusDownloaded": {
+    "message": "$P1$ opgeslagen",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "uiErrCannotRun": {
+    "message": "Kan deze pagina niet aanpassen"
+  },
+  "uiErrInternalPages": {
+    "message": "Graft werkt op websites, niet op interne pagina’s (chrome://, de Web Store, de PDF-viewer) of bestanden op schijf."
+  },
+  "uiErrDownload": {
+    "message": "Kon $P1$ niet downloaden",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "uiErrDownloadWhy": {
+    "message": "De pagina leest het bestand uit zijn eigen cache. Een bestand van een andere site die dat niet toestaat, is zo niet te lezen: open het in een tabblad en sla het daar op."
+  },
+  "uiErrDownloadSlow": {
+    "message": "Het lezen duurde te lang om nog een opslagvenster te mogen openen. Druk nog een keer op downloaden; de tweede keer komt het uit de cache."
+  },
+  "uiErrNoAccess": {
+    "message": "Toestemming niet gegeven"
+  },
+  "uiErrNoAccessWhy": {
+    "message": "Zonder die toestemming kan Graft niets vervangen. Druk op Toestaan om het opnieuw gevraagd te krijgen."
+  },
+  "uiAuthorRole": {
+    "message": "front-end designer"
+  }
+}

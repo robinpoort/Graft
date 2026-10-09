@@ -1,0 +1,253 @@
+{
+  "appName": {
+    "message": "Graft: Test Local CSS and JS on a Live Site"
+  },
+  "appDesc": {
+    "message": "Swap a stylesheet or script on a live site for a file on your own computer and see every save straight away. No deploy in between."
+  },
+  "appShortName": {
+    "message": "Graft"
+  },
+  "uiRescan": {
+    "message": "Scan the page again"
+  },
+  "uiNoSite": {
+    "message": "No website"
+  },
+  "uiAccessPending": {
+    "message": "Waiting for permission"
+  },
+  "uiAccessHead": {
+    "message": "Permission first"
+  },
+  "uiAccessNote": {
+    "message": "To swap a stylesheet or a script, Graft has to be on the page before it starts loading, on every reload. Chrome only allows that with permission to read and change the sites you visit. Graft changes nothing on a site until you choose a file for it, and taking the permission back in chrome://extensions puts everything back as it was."
+  },
+  "uiAccessAllow": {
+    "message": "Allow"
+  },
+  "uiSheets": {
+    "message": "Stylesheets"
+  },
+  "uiScripts": {
+    "message": "Scripts"
+  },
+  "uiSummaryOne": {
+    "message": "1 stylesheet"
+  },
+  "uiSummaryMany": {
+    "message": "$P1$ stylesheets",
+    "description": "The number of stylesheets on the page. Used for every number but one.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "uiSummaryScriptsOne": {
+    "message": "1 script"
+  },
+  "uiSummaryScriptsMany": {
+    "message": "$P1$ scripts",
+    "description": "The number of scripts with a src on the page. Used for every number but one.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "uiSummarySwapped": {
+    "message": "$P1$ swapped",
+    "description": "How many of those stylesheets currently show a local file.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "uiEmpty": {
+    "message": "No stylesheets or scripts on this page. CSS pulled in through @import or written into a <style>, and a script written into the page itself, have no file of their own to swap."
+  },
+  "uiNotOnPage": {
+    "message": "not on this page",
+    "description": "After the folder of a stylesheet that has a file chosen for it but is not on the page you are looking at."
+  },
+  "uiChoose": {
+    "message": "Choose a local file…"
+  },
+  "uiChooseOther": {
+    "message": "Other file…"
+  },
+  "uiRemove": {
+    "message": "Remove"
+  },
+  "uiUseFile": {
+    "message": "Use this file"
+  },
+  "uiAllowFile": {
+    "message": "Allow file access"
+  },
+  "uiPickerType": {
+    "message": "Stylesheet",
+    "description": "The file type in the file picker."
+  },
+  "uiPickerTypeJs": {
+    "message": "JavaScript",
+    "description": "The file type in the file picker."
+  },
+  "uiDownload": {
+    "message": "Download $P1$",
+    "description": "Label of the download button on a card. $P1$ is the file name.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "uiDownloadTitle": {
+    "message": "Download the live file"
+  },
+  "uiStateLive": {
+    "message": "Live"
+  },
+  "uiStateOff": {
+    "message": "Off"
+  },
+  "uiStateCopy": {
+    "message": "Copy"
+  },
+  "uiStateMissing": {
+    "message": "Missing"
+  },
+  "uiStateNotSwapped": {
+    "message": "Not swapped"
+  },
+  "uiNoteLive": {
+    "message": "Follows every save. Last saved at $P1$.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "uiNoteLiveJs": {
+    "message": "Every save reloads the page. Last saved at $P1$.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "uiNoteOff": {
+    "message": "The page shows the original."
+  },
+  "uiNoteOffJs": {
+    "message": "The page runs the original."
+  },
+  "uiNoteLate": {
+    "message": "Added by another script while the page was already running, too late to swap. The original ran."
+  },
+  "uiNoteBlocked": {
+    "message": "The site’s Content Security Policy does not allow the swap, so the original ran instead."
+  },
+  "uiNoteCopy": {
+    "message": "Showing the copy from $P1$.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "uiNotePrompt": {
+    "message": "Showing the copy from $P1$. Chrome wants your OK again before Graft may follow the file.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "uiNoteGone": {
+    "message": "The file has gone. Showing the copy from $P1$.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "uiNoteNoHandle": {
+    "message": "Showing the copy from $P1$. Choose the file again to follow it.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "uiHint": {
+    "message": "While this panel is open, every save of a chosen file shows up on the page straight away: a stylesheet in place, a script with a reload. Close it and the page keeps the last copy, also after a reload."
+  },
+  "uiStatusSwapped": {
+    "message": "$P1$ now uses $P2$",
+    "description": "Announced to screen readers. $P1$ is the stylesheet, $P2$ the local file.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "uiStatusOriginal": {
+    "message": "$P1$ is back to the original",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "uiStatusRemoved": {
+    "message": "$P1$ is no longer swapped",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "uiStatusDownloaded": {
+    "message": "$P1$ saved",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "uiErrCannotRun": {
+    "message": "Cannot change this page"
+  },
+  "uiErrInternalPages": {
+    "message": "Graft works on websites, not on internal pages (chrome://, the Web Store, the PDF viewer) or files on disk."
+  },
+  "uiErrDownload": {
+    "message": "Could not download $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "uiErrDownloadWhy": {
+    "message": "The page reads the file from its own cache. A file from another site that does not allow that cannot be read this way: open it in a tab and save it from there."
+  },
+  "uiErrDownloadSlow": {
+    "message": "Reading the file took too long for Chrome to still open the save dialog. Press download again; the second time it comes from the cache."
+  },
+  "uiErrNoAccess": {
+    "message": "Permission not given"
+  },
+  "uiErrNoAccessWhy": {
+    "message": "Without it there is nothing Graft can swap. Press Allow to be asked again."
+  },
+  "uiAuthorRole": {
+    "message": "front-end designer"
+  }
+}

@@ -1,0 +1,441 @@
+/* =============================================================================
+   style.css — Graft
+   Structure: (1) fonts, (2) tokens, (3) panel chrome, (4) the panel's own parts.
+
+   Same palette and the same components as Unfurl and Spill: the robinpoort.com blue,
+   Barlow Semi Condensed for the small uppercase labels, and everything the reader actually
+   reads on the system font, so the panel still looks like part of Chrome.
+   ========================================================================== */
+
+/* ------------------------------------------------------------------- fonts */
+/* Bundled, not fetched: the panel has to work offline and must not phone home.
+   See fonts/LICENSE.md. Bold only — the same cut robinpoort.com ships. */
+@font-face {
+  font-family: "Barlow Semi Condensed";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("fonts/barlow-semicondensed-700-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Barlow Semi Condensed";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("fonts/barlow-semicondensed-700-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* ------------------------------------------------------------------ tokens */
+:root {
+  color-scheme: light dark;
+
+  /* Brand, straight off robinpoort.com. */
+  --sp-brand: #0042ff;
+  --sp-on-brand: #ffffff;
+  --sp-brand-edge: rgba(0, 0, 0, .5);   /* the hard bottom edge under a button */
+  --sp-edge-soft: rgb(0 5 63 / .09);    /* the same idea, for secondary buttons */
+
+  --sp-bg: #ffffff;
+  --sp-bg-sunken: #f4f7ff;
+  --sp-fg: #00053f;
+  --sp-fg-muted: #575d80;
+  --sp-line: #e0e5f2;
+  --sp-accent-ui: var(--sp-brand);
+
+  /* A brand tint rather than a flat colour, so a block sitting on it borrows whatever is
+     underneath instead of fighting it. */
+  --sp-brand-wash: rgb(0 66 255 / .06);
+
+  --sp-error: #c0362c;
+  --sp-error-bg: #fdeceb;
+  --sp-warn: #8a5a00;
+  --sp-warn-bg: #fff5e0;
+  --sp-ok: #12683a;
+  --sp-ok-bg: #e3f5ea;
+
+  --sp-radius: 8px;
+  --sp-radius-ui: 6px;
+  --sp-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --sp-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* Only for the small uppercase labels, never for body text. */
+  --sp-display: "Barlow Semi Condensed", var(--sp-font);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* The site's own dark blue, which needs dark text on it. */
+    --sp-brand: #599ff3;
+    --sp-on-brand: #0b0f1a;
+    --sp-brand-edge: rgba(0, 0, 0, .45);
+    --sp-edge-soft: rgb(0 0 0 / .35);
+
+    --sp-bg: #181a23;
+    --sp-bg-sunken: #212533;
+    --sp-fg: #e9ebf5;
+    --sp-fg-muted: #979ebb;
+    --sp-line: #2f3444;
+
+    --sp-brand-wash: rgb(89 159 243 / .12);
+
+    --sp-error: #ff8a80;
+    --sp-error-bg: #3b2427;
+    --sp-warn: #f0b429;
+    --sp-warn-bg: #38301e;
+    --sp-ok: #6fd694;
+    --sp-ok-bg: #16301f;
+  }
+}
+
+/* ------------------------------------------------------------ panel chrome */
+* { box-sizing: border-box; }
+
+/* An element carrying `hidden` has to stay hidden, whatever display a rule further
+   down hands it. */
+[hidden] { display: none !important; }
+
+/* One scroll container, not two: the body is a fixed column and only .sp-main scrolls.
+   Unlike a popup the side panel has a height of its own, so the column fills it and the
+   footer stays at the bottom however little there is above it. */
+html { height: 100%; }
+
+body {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  font: 13px/1.45 var(--sp-font);
+  color: var(--sp-fg);
+  background: var(--sp-bg);
+}
+
+body > header,
+body > footer { flex: none; }
+
+:focus-visible {
+  outline: 2px solid var(--sp-accent-ui);
+  outline-offset: 2px;
+}
+
+/* Interactive chrome settles rather than snapping — but only if the viewer
+   has not asked for less motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .sp-btn,
+  .sp-iconbtn,
+  .sp-sheet {
+    transition:
+      color 120ms ease,
+      background-color 120ms ease,
+      border-color 120ms ease,
+      box-shadow 120ms ease,
+      transform 90ms ease;
+  }
+}
+
+/* Screen readers only. */
+.sp-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* The site you are on, the way Unfurl shows the page it read. */
+.sp-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--sp-line);
+}
+
+.sp-head__icon { flex: none; border-radius: 3px; }
+
+.sp-head__text { min-width: 0; display: grid; }
+
+.sp-head__text span,
+.sp-head__text strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sp-head__text strong { font-size: 13px; }
+
+.sp-head__text span { font-size: 12px; color: var(--sp-fg-muted); }
+
+.sp-iconbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  padding: 0;                      /* the UA default would shrink the icon to fit */
+  color: var(--sp-fg-muted);
+  background: var(--sp-bg);
+  border: 1px solid var(--sp-line);
+  border-radius: var(--sp-radius-ui);
+  box-shadow: inset 0 -2px 0 var(--sp-edge-soft);
+  cursor: pointer;
+}
+
+.sp-iconbtn:hover { color: var(--sp-fg); background: var(--sp-bg-sunken); }
+
+/* Buttons on the site have a solid darker bottom edge that shrinks when pressed. */
+.sp-iconbtn:active { transform: translateY(1px); box-shadow: none; }
+
+.sp-iconbtn__icon { display: block; width: 13px; height: 13px; }
+
+/* On a card, beside the file it downloads: a size down from the one in the header, so the
+   card's own name stays the first thing you read. */
+.sp-iconbtn--small { width: 24px; height: 24px; margin-left: 0; }
+.sp-iconbtn--small .sp-iconbtn__icon { width: 14px; height: 14px; }
+
+/* Saved: the arrow makes way for a tick for a moment, the way Unfurl's copy button
+   confirms itself. */
+.sp-icon--done { display: none; }
+.sp-iconbtn[data-done] { color: var(--sp-ok); }
+.sp-iconbtn[data-done] .sp-icon--idle { display: none; }
+.sp-iconbtn[data-done] .sp-icon--done { display: block; }
+
+/* On a page Chrome will not let the extension touch, this is left carrying the panel on
+   its own: the list is gone and the footer is all that is under it. */
+.sp-error {
+  display: grid;
+  gap: 4px;
+  margin: 12px;
+  padding: 10px;
+  font-size: 12px;
+  color: var(--sp-error);
+  background: var(--sp-error-bg);
+  border-left: 3px solid var(--sp-error);
+  border-radius: var(--sp-radius-ui);
+}
+
+.sp-error__reason { font-size: 12px; opacity: .7; }
+
+.sp-main { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+
+.sp-panel { padding: 12px; }
+
+.sp-section__head {
+  margin: 0 0 6px;
+  font-family: var(--sp-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--sp-fg-muted);
+}
+
+/* ------------------------------------------------------------------- pills */
+.sp-pill {
+  flex: none;
+  padding: 1px 6px;
+  font-family: var(--sp-display);
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 999px;
+  background: var(--sp-bg-sunken);
+  color: var(--sp-fg-muted);
+}
+
+.sp-pill--ok { background: var(--sp-ok-bg); color: var(--sp-ok); }
+.sp-pill--warn { background: var(--sp-warn-bg); color: var(--sp-warn); }
+.sp-pill--error { background: var(--sp-error-bg); color: var(--sp-error); }
+
+/* ----------------------------------------------------------------- buttons */
+.sp-btn {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  padding: 8px 14px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--sp-on-brand);
+  background: var(--sp-brand);
+  border: 0;
+  border-radius: var(--sp-radius-ui);
+  box-shadow: inset 0 -3px 0 var(--sp-brand-edge);
+  cursor: pointer;
+}
+
+.sp-btn:hover { filter: brightness(1.08); }
+
+/* Pressed: the button sinks onto its own edge. */
+.sp-btn:active { transform: translateY(2px); box-shadow: inset 0 -1px 0 var(--sp-brand-edge); }
+
+/* In a row of cards a full-size button is a toolbar; these sit on a card. */
+.sp-btn--compact { padding: 5px 10px; box-shadow: inset 0 -2px 0 var(--sp-brand-edge); }
+.sp-btn--compact:active { transform: translateY(1px); box-shadow: inset 0 -1px 0 var(--sp-brand-edge); }
+
+/* Choosing a file is what every card offers, so on every card it is the quiet one. Only a
+   file Chrome wants your OK for again gets the brand colour: that one is waiting on you. */
+.sp-btn--ghost {
+  color: var(--sp-fg-muted);
+  background: var(--sp-bg);
+  border: 1px solid var(--sp-line);
+  box-shadow: inset 0 -2px 0 var(--sp-edge-soft);
+}
+
+.sp-btn--ghost:hover { color: var(--sp-fg); background: var(--sp-bg-sunken); filter: none; }
+.sp-btn--ghost:active { transform: translateY(1px); box-shadow: none; }
+
+/* Taking an override away says what it does on hover, the way a removable chip does in
+   Spill's settings. */
+.sp-btn--remove:hover { color: var(--sp-error); background: var(--sp-error-bg); }
+
+/* --------------------------------------------------------------- switches */
+.sp-switch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 6px;
+  margin: 0 -6px;
+  border-radius: var(--sp-radius-ui);
+  cursor: pointer;
+}
+
+.sp-switch:hover { background: var(--sp-bg-sunken); }
+
+.sp-switch input {
+  flex: none;
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  accent-color: var(--sp-brand);
+  cursor: pointer;
+}
+
+/* ------------------------------------------------------------------ notes */
+.sp-note { margin: 6px 0 0; font-size: 12px; line-height: 1.4; color: var(--sp-fg-muted); }
+
+/* The whole of what the access screen has to say, so it reads as a paragraph rather than
+   as a footnote under something else. */
+.sp-note--lead { margin: 0 0 12px; line-height: 1.5; }
+
+.sp-note--warn { color: var(--sp-warn); }
+.sp-note--error { color: var(--sp-error); }
+
+/* The last word in the panel, set off by a rule so it does not read as one more card. */
+.sp-panelfoot {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--sp-line);
+}
+
+.sp-panelfoot .sp-note { margin: 0; }
+
+/* ------------------------------------------------------------- stylesheets */
+/* Stylesheets, then scripts: two of the same list, a heading apart. */
+.sp-group + .sp-group { margin-top: 18px; }
+
+.sp-sheets {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sp-sheet {
+  padding: 9px 10px 10px;
+  border: 1px solid var(--sp-line);
+  border-radius: var(--sp-radius);
+}
+
+/* Swapped is the state you must not forget you are in: the page looks deployed and is
+   not. So it carries the brand, in the tint the rest of the family uses for a block that
+   belongs to what you just did. No left stripe: that is the error box's signature. */
+.sp-sheet--on {
+  background: var(--sp-brand-wash);
+  border-color: var(--sp-brand);
+}
+
+.sp-sheet__top {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.sp-sheet__text { flex: 1 1 auto; min-width: 0; display: grid; }
+
+.sp-sheet__name { font-size: 13px; overflow-wrap: anywhere; }
+
+/* Where it lives, written the way it appears in the address, so it is set as code. */
+.sp-sheet__path {
+  font-family: var(--sp-mono);
+  font-size: 11px;
+  color: var(--sp-fg-muted);
+  overflow-wrap: anywhere;
+}
+
+/* The local file, hanging under the one it stands in for. */
+.sp-sheet__local {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  font-family: var(--sp-mono);
+  font-size: 12px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.sp-sheet__arrow { flex: none; color: var(--sp-fg-muted); font-weight: 400; }
+
+.sp-sheet__local + .sp-note { margin-top: 2px; }
+
+.sp-sheet .sp-switch { margin-top: 6px; }
+
+.sp-sheet__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+/* ------------------------------------------------------------------ footer */
+.sp-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 12px;
+  font-size: 12px;
+  color: var(--sp-fg-muted);
+  background: var(--sp-bg-sunken);
+  border-top: 1px solid var(--sp-line);
+}
+
+/* The one place the panel signs its own name. */
+.sp-foot__name {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--sp-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--sp-fg);
+}
+
+/* The icon already carries its own rounded corners. */
+.sp-foot__logo { display: block; flex: none; width: 16px; height: 16px; }
+
+.sp-foot__link { color: var(--sp-fg-muted); }
+.sp-foot__link:hover { color: var(--sp-brand); }
