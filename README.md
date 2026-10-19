@@ -23,9 +23,10 @@ Fonts — says where it comes from.
 - **Choose a local file…** opens the file picker. A stylesheet switches to that file at
   once, without a reload; a script reloads the page, because a script that has run cannot
   be taken back.
-- While the panel is open, every save of the file shows up on the page within a second: a
-  stylesheet in place, a script with a reload. The card says **Live** and when the file was
-  last saved, to the second, so you can tell the page is showing the save you just made.
+- Every save of the file shows up on the page within a second, with the panel open or
+  closed: a stylesheet in place, a script with a reload. The card says **Live** and when
+  the file was last saved, to the second, so you can tell the page is showing the save you
+  just made.
 - **Use this file** switches between your file and the original. For a stylesheet both
   ways are instant.
 - **Other file…** picks a different one; **Remove** forgets it.
@@ -33,8 +34,10 @@ Fonts — says where it comes from.
   start from. The file picker remembers the folder, so **Choose a local file…** opens
   right beside what you just saved.
 
-Close the panel and the page keeps the last copy, also after a reload. Open it again and
-it catches up with whatever you saved in between.
+Close the panel and your saves keep coming in; the badge on the icon says the page is
+showing a local file. After a browser restart Chrome wants your OK again before Graft may
+read the file: until you open the panel and give it, the page keeps the last copy, also
+after a reload.
 
 Everything is kept per site, by hostname: a file chosen on `www.example.com` does nothing
 on `example.com` or anywhere else. A file that has something chosen for it but is not on
@@ -101,19 +104,38 @@ you your override.
 
 ### Following the file
 
-The panel keeps a handle to the file from the picker, in IndexedDB, and looks at it once a
-second while the panel is open and in view. Only the date Chrome gives the file is
-compared; the contents are read when it changed and stored, and `content.js` picks them up
-from `storage.onChanged`. Nothing in the page polls anything.
+The panel keeps a handle to the file from the picker, in IndexedDB. The worker
+(`watcher.js`) takes it from there and looks at the file once a second, with the panel
+open or closed. Only the date Chrome gives the file is compared; the contents are read when
+it changed and stored, and `content.js` picks them up from `storage.onChanged`. Nothing in
+the page polls anything.
+
+The worker does it, not the panel, because of how Chrome keeps your OK for a file. It
+holds while anything of the extension holds a handle to that file; once nothing does,
+Chrome forgets it, and the next handle read from IndexedDB is back to asking. When the
+panel did the following, closing it was exactly that: the saves stopped coming in, and
+opened again the panel had to ask for the file again. (Closing a *tab* of the extension
+takes the OK back whatever still holds the file, but Graft has none: a side panel does not
+count as one.) So the worker holds the files that are switched on and can be read — and
+stays awake to do it, since a worker Chrome stops lets go of everything. Chrome stops an
+idle worker after 30 seconds, and a call to an extension API counts as not idle, so every
+look makes one. With nothing to follow there is no timer, and the worker sleeps as usual.
+
+The worker also stores every change, for the panel too: the panel asks it with a message
+(`changeSite` in `overrides.js`). With two writers, a save landing in the same moment as a
+click could write the switch you just flipped straight back. And the worker only writes a
+save over the copy that same file wrote last, so a save of the old file arriving just as
+you pick another one cannot overwrite it.
 
 The contents go into `chrome.storage.local` because that is the only thing of ours
 `content.js` can reach. A page cannot read your disk, and a file handle is of no use to
 it. `unlimitedStorage`, because a compiled stylesheet with a few fonts inlined, or a
 bundle, is a megabyte before anyone notices.
 
-After a browser restart Chrome may want your OK again before the panel can read a file.
-The card then says it is showing the last copy and offers **Allow file access**; the page
-keeps working with that copy until you press it.
+After a browser restart Chrome wants your OK again before a file can be read. The card
+then says it is showing the last copy and offers **Allow file access**; the page keeps
+working with that copy until you press it, and from then on the worker follows the file
+again.
 
 ### Downloading
 
@@ -129,8 +151,9 @@ has to allow the page to read it, which most CDNs do and some do not.
 | --- | --- |
 | `content.js` | Swaps the stylesheets and scripts on the page for the stored files, keeps the script copy in the page's localStorage, and reports what it swapped. |
 | `background.js` | Keeps the content script registered with the permission, sets the badge from what the page reports, and opens the panel from the toolbar. |
-| `panel.js` | The coordinator. Follows the tab in front, lists its files, runs the pickers, the downloads and the file watcher. The only writer of the overrides. |
-| `overrides.js` | What is swapped for what, per site, and the queue every write goes through. |
+| `watcher.js` | Part of the worker. Holds the chosen files, follows every save, and is the only writer of the overrides. |
+| `panel.js` | The coordinator. Follows the tab in front, lists its files, runs the pickers and the downloads, shows whether each file can be read, and asks the worker for every change. |
+| `overrides.js` | What is swapped for what, per site, the queue every write goes through, and the message the panel asks for a change with. |
 | `handles.js` | The file handles from the picker, in IndexedDB. |
 | `hostaccess.js` | The one optional permission, and the content script it pays for. |
 | `ui.js` | Element building, the icons, the error box, the live region. |
@@ -202,6 +225,24 @@ back to English. Every string lives in `_locales/{en,nl}/messages.json` and is r
 `t()` from `i18n.js`, which falls back to the key itself, so a missing translation is
 visible immediately instead of silently empty. Times are formatted with `Intl`.
 
+## Tests
+
+`test/browser.cjs` loads the extension in a headless Chromium through Playwright, opens the
+panel on a local test site, chooses a file for its stylesheet and checks every save on the
+page: with the panel open, with it closed, after a reload, and with the panel opened again —
+still following, without asking for the file again. Then switching it off and on, and
+removing it. The file picker cannot be driven from a test, so the file is dropped on the
+panel instead, which gives the same kind of handle.
+
+```sh
+cd test
+npm install
+npm test
+```
+
+The test needs Playwright's Chromium; `npx playwright install chromium` fetches it the first
+time.
+
 ## Known limitations
 
 - Only `<link rel="stylesheet">` and `<script src>` can be swapped. CSS pulled in through
@@ -221,7 +262,8 @@ visible immediately instead of silently empty. Times are formatted with `Intl`.
 - Does not work on `chrome://` pages, the Web Store or the PDF viewer. Chrome does not
   allow injection there. Pages on disk (`file://`) are left out on purpose: there is no
   deploy to wait for.
-- Saves are followed only while the panel is open. With it closed the page shows the last
-  copy until the panel is opened again.
+- After a browser restart, or anything else that stops the worker — reloading or updating
+  the extension — saves are not followed until you open the panel and allow the file
+  again. The page shows the last copy meanwhile.
 - Reloading the extension leaves the pages that were open with a content script that can
   no longer hear anything. Reload those pages.

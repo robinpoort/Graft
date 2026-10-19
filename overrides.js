@@ -42,6 +42,9 @@ export async function loadSite(host) {
  * Every write is read, changed and written back in turn. The file watcher and a click can
  * otherwise both read the same site, and whichever writes last throws the other's change
  * away. Resolves to the site as stored.
+ *
+ * Only the worker calls this. The panel asks it with `changeSite`, so all writes are in the
+ * one queue.
  */
 let writes = Promise.resolve();
 
@@ -58,3 +61,10 @@ export function updateSite(host, mutate) {
   writes = task.catch(() => {});
   return task;
 }
+
+/**
+ * A change asked of the worker, which makes it: `set` a file's entry, `enable` it or not,
+ * or `remove` it. Resolves to the site as stored, or null when the worker could not.
+ */
+export const changeSite = (host, kind, match, value) =>
+  chrome.runtime.sendMessage({ action: 'store', host, kind, match, value }).catch(() => null);

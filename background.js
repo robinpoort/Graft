@@ -1,8 +1,9 @@
 /**
  * Graft — background.js
  *
- * Two jobs: keep the content script registered for exactly as long as the permission that
- * pays for it, and turn what each page reports into its badge.
+ * Three jobs: keep the content script registered for exactly as long as the permission that
+ * pays for it, turn what each page reports into its badge, and — in watcher.js — follow the
+ * chosen files and store every change to them.
  *
  * The page reports that itself. Chrome wipes a tab's badge the moment it navigates, and a
  * page knows what it swapped without anyone having to ask — so content.js says how many
@@ -10,6 +11,7 @@
  */
 
 import { ORIGINS, registerSwapScript, unregisterSwapScript } from './hostaccess.js';
+import './watcher.js';
 
 /**
  * The registered content script follows the permission, wherever that was changed — the

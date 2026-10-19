@@ -183,7 +183,7 @@
     }
   },
   "uiHint": {
-    "message": "While this panel is open, every save of a chosen file shows up on the page straight away: a stylesheet in place, a script with a reload. Close it and the page keeps the last copy, also after a reload."
+    "message": "Every save of a chosen file shows up on the page straight away, also with this panel closed: a stylesheet in place, a script with a reload. After a browser restart Chrome wants your OK again first: open the panel and allow the file."
   },
   "uiStatusSwapped": {
     "message": "$P1$ now uses $P2$",

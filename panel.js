@@ -1,22 +1,23 @@
 /**
  * The coordinator: knows which tab is in front, lists its stylesheets and scripts, lets
- * you pick a local file for each or download the live one, and keeps the stored copy of
- * every picked file in step with the file on disk.
+ * you pick a local file for each or download the live one, and shows whether each picked
+ * file is being followed.
  *
- * It is the only writer of the overrides. content.js only reads them and applies whatever
- * lands in storage, so a page is never ahead of what is stored — and a page reloaded with
- * the panel closed shows exactly what it showed before.
+ * Following them is the worker's job (watcher.js), so it goes on with the panel closed, and
+ * so is storing: every change made here is asked of the worker. content.js only reads the
+ * overrides and applies whatever lands in storage, so a page is never ahead of what is
+ * stored.
  */
 
 import { t, time, uiLanguage } from './i18n.js';
 import { AUTHOR, authorUrl } from './links.js';
 import { ORIGINS, hasHostAccess } from './hostaccess.js';
-import { normalize, loadSite, updateSite } from './overrides.js';
+import { normalize, loadSite, siteKey, changeSite } from './overrides.js';
 import { getHandle, putHandle, deleteHandle } from './handles.js';
 import { $, h, downloadIcon, checkIcon, showError, clearError, announce } from './ui.js';
 
-/** How often a chosen file is looked at. Nobody saves faster than once a second. */
-const WATCH_MS = 1000;
+/** How often the panel looks whether each chosen file can still be read. */
+const LOOK_MS = 1000;
 
 // file:// is left out on purpose: a page on disk has no deploy to wait for.
 const canRun = (url) => /^https?:/i.test(url || '');
@@ -199,51 +200,37 @@ async function loadTab() {
 
 /* -------------------------------------------------------------- the files */
 
-/** Stores a change for `forHost`, and redraws if that is still the site in front. */
-async function store(forHost, mutate) {
-  const stored = await updateSite(forHost, mutate);
-  if (forHost !== host) return;
+/**
+ * Asks the worker to store a change for `forHost` — `set`, `enable` or `remove` — and
+ * redraws if that is still the site in front.
+ */
+async function store(forHost, kind, match, value) {
+  const stored = await changeSite(forHost, kind, match, value);
+  if (!stored || forHost !== host) return;
   site = stored;
   render();
 }
 
 /**
- * Looks at one chosen file and stores it again if it was saved since. Returns whether it
- * can be read at all, which is what the card shows.
- *
- * The date Chrome gives the file is all that is compared. Reading a whole bundle every
- * second to find out nothing happened would be the expensive way to learn the same thing.
+ * Whether one chosen file can be read, which is what the card shows. Only looking: the
+ * worker is the one that reads it when it was saved, and stores it.
  */
-async function readFile(forHost, match, override) {
+async function readable(match, override) {
   const handle = handles.get(match);
   if (!handle) return 'missing';
   if (await handle.queryPermission({ mode: 'read' }) !== 'granted') return 'prompt';
-  // Nothing to follow while it is switched off. Switching it back on looks again.
+  // Nothing to follow while it is switched off.
   if (!override.enabled) return 'granted';
-
-  let file;
   try {
-    file = await handle.getFile();
+    // The file as it is now, without reading it: enough to know it is still there.
+    await handle.getFile();
   } catch {
     return 'gone';
-  }
-  if (file.lastModified === override.lastModified) return 'granted';
-
-  try {
-    const code = await file.text();
-    await store(forHost, (stored) => {
-      if (stored[match]) Object.assign(stored[match], { code, lastModified: file.lastModified });
-    });
-  } catch {
-    // Caught halfway through a save. The next look gets the finished file.
   }
   return 'granted';
 }
 
-/**
- * The watcher. Only while the panel is open and in view: a hidden panel saves no one any
- * time, and with the panel closed the page keeps the last copy anyway.
- */
+/** Only while the panel is open and in view: a hidden panel shows no one anything. */
 async function checkFiles() {
   if (checking || !host || document.hidden) return;
   checking = true;
@@ -252,7 +239,7 @@ async function checkFiles() {
 
   try {
     for (const [match, override] of Object.entries(site)) {
-      const state = await readFile(forHost, match, override);
+      const state = await readable(match, override);
       if (forHost !== host) return;
       if (access.get(match) === state) continue;
       access.set(match, state);
@@ -304,9 +291,7 @@ async function choose(match) {
     handles.set(match, handle);
     access.set(match, 'granted');
   }
-  await store(forHost, (stored) => {
-    stored[match] = { type, name: file.name, code, lastModified: file.lastModified, enabled: true };
-  });
+  await store(forHost, 'set', match, { type, name: file.name, code, lastModified: file.lastModified, enabled: true });
   announce(t('uiStatusSwapped', nameOf(match), file.name));
 }
 
@@ -371,34 +356,29 @@ async function download(match, control) {
 /**
  * After a browser restart Chrome may want your OK again before a file can be read. Note
  * the request is the first thing in here: an `await` before it would spend the click that
- * makes it allowed to ask.
+ * makes it allowed to ask. The worker then takes the file over, and holds on to it.
  */
 async function grant(match) {
   const handle = handles.get(match);
   if (!handle || await handle.requestPermission({ mode: 'read' }) !== 'granted') return;
   access.set(match, 'granted');
   render();
+  chrome.runtime.sendMessage({ action: 'follow' }).catch(() => {});
   checkFiles();
 }
 
 async function toggle(match, enabled) {
-  await store(host, (stored) => {
-    if (stored[match]) stored[match].enabled = enabled;
-  });
+  await store(host, 'enable', match, enabled);
   announce(enabled
     ? t('uiStatusSwapped', nameOf(match), site[match]?.name || '')
     : t('uiStatusOriginal', nameOf(match)));
-  // It may well have been saved while it was off.
-  if (enabled) checkFiles();
 }
 
 async function remove(match) {
   const forHost = host;
   handles.delete(match);
   access.delete(match);
-  await store(forHost, (stored) => {
-    delete stored[match];
-  });
+  await store(forHost, 'remove', match);
   await deleteHandle(forHost, match);
   announce(t('uiStatusRemoved', nameOf(match)));
 }
@@ -596,8 +576,18 @@ function start() {
   chrome.permissions.onAdded.addListener(loadTab);
   chrome.permissions.onRemoved.addListener(loadTab);
 
-  setInterval(checkFiles, WATCH_MS);
+  // Every save the worker stores, so the card says when the file was saved last.
+  chrome.storage.onChanged.addListener((changes, area) => {
+    const change = changes[siteKey(host)];
+    if (area !== 'local' || !host || !change) return;
+    site = change.newValue || {};
+    render();
+  });
+
+  setInterval(checkFiles, LOOK_MS);
   loadTab();
+  // The worker may have been stopped since it last held the files; this wakes it to look.
+  chrome.runtime.sendMessage({ action: 'follow' }).catch(() => {});
 }
 
 start();

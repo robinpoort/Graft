@@ -1,0 +1,10 @@
+{
+  "name": "graft-tests",
+  "private": true,
+  "scripts": {
+    "test": "node browser.cjs"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
+  }
+}

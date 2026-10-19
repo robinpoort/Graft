@@ -176,7 +176,7 @@
     }
   },
   "uiHint": {
-    "message": "Zolang dit paneel open is, verschijnt elke opslag van een gekozen bestand meteen op de pagina: een stylesheet ter plekke, een script met een herlaadbeurt. Sluit je het, dan houdt de pagina de laatste kopie, ook na herladen."
+    "message": "Elke opslag van een gekozen bestand verschijnt meteen op de pagina, ook als dit paneel dicht is: een stylesheet ter plekke, een script met een herlaadbeurt. Na een herstart van de browser wil Chrome eerst opnieuw je akkoord: open dan het paneel en sta het bestand toe."
   },
   "uiStatusSwapped": {
     "message": "$P1$ gebruikt nu $P2$",
